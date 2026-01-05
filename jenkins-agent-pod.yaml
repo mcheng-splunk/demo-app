@@ -17,7 +17,7 @@ spec:
       image: gcr.io/kaniko-project/executor:latest
       command:
         - /busybox/sh
-	- -c
+        - -c
         - "sleep infinity"
       tty: true
       volumeMounts:
