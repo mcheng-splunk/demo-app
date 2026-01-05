@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: jenkins-agent
+spec:
+  containers:
+    - name: maven
+      image: maven:3.9.9-eclipse-temurin-17
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - name: maven-cache
+          mountPath: /root/.m2
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:latest
+      command:
+        - /busybox/cat
+      tty: true
+      volumeMounts:
+        - name: docker-config
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: maven-cache
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: docker-config  # This is your Docker registry credentials secret
+
