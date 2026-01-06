@@ -14,6 +14,8 @@ spec:
       volumeMounts:
         - name: maven-cache
           mountPath: /root/.m2
+        - name: workspace
+          mountPath: /home/jenkins/agent/workspace
     - name: kaniko
       image: gcr.io/kaniko-project/executor:debug
       command:
@@ -22,15 +24,21 @@ spec:
       volumeMounts:
         - name: docker-config
           mountPath: /kaniko/.docker
+        - name: workspace
+          mountPath: /home/jenkins/agent/workspace
     - name: kubectl
       image: bitnami/kubectl:latest
       command: ["sleep", "3600"]
       volumeMounts:
         - name: kubeconfig
           mountPath: /root/.kube
+        - name: workspace
+          mountPath: /home/jenkins/agent/workspace
   volumes:
     - name: maven-cache
       emptyDir: {}
+    - name: workspace
+      emptyDir: {}   # Shared workspace for all containers
     - name: docker-config
       secret:
         secretName: docker-config  # This is your Docker registry credentials secret
