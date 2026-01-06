@@ -36,3 +36,6 @@ spec:
         items:
           - key: .dockerconfigjson
             path: config.json
+    - name: kubeconfig
+      secret:
+        secretName: kubeconfig  # ← your kubeconfig secret
