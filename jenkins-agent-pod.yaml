@@ -5,6 +5,8 @@ metadata:
     app: jenkins-agent
 spec:
   serviceAccountName: jenkins-agent
+  securityContext:
+    fsGroup: 1000   # gives write access to shared volumes
   containers:
     - name: maven
       image: maven:3.9.9-eclipse-temurin-17
