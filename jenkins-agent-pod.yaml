@@ -22,6 +22,11 @@ spec:
       volumeMounts:
         - name: docker-config
           mountPath: /kaniko/.docker
+    - name: kubectl
+      image: bitnami/kubectl:latest
+      volumeMounts:
+        - name: kubeconfig
+          mountPath: /root/.kube
   volumes:
     - name: maven-cache
       emptyDir: {}

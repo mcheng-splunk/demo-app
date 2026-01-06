@@ -34,10 +34,9 @@ pipeline {
       }
       stage('Deploy to Kubernetes') {
         steps {
-          container('maven') {
+          container('kubectl') {
             sh '''
               kubectl apply -f k8s/deployment.yaml
-              kubectl apply -f k8s/service.yaml
             '''
           }
         }
