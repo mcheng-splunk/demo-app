@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: demo-app
-        image: your-dockerhub-username/demo-app:latest
+        image: melcheng/demo-app:latest
         ports:
         - containerPort: 8080
 ---
@@ -29,5 +29,6 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  type: LoadBalancer
+      nodePort: 30080
+  type: NodePort
 
