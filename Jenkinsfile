@@ -35,9 +35,13 @@ pipeline {
       stage('Deploy to Kubernetes') {
         steps {
           container('kubectl') {
-            sh '''
-              kubectl apply -f k8s/deployment.yaml
-            '''
+             sh '''
+               echo "Current namespace:"
+               kubectl config view --minify --output 'jsonpath={..namespace}'
+
+               echo "Test deployment apply..."
+               kubectl apply -f k8s/deployment.yaml
+             '''
           }
         }
       }
