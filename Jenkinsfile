@@ -20,6 +20,17 @@ pipeline {
           }
         }
       }
+      stage('Check Kaniko Docker Config') {
+        steps {
+          container('kaniko') {
+            sh '''
+              echo "Checking /kaniko/.docker"
+              ls -l /kaniko/.docker
+              cat /kaniko/.docker/config.json
+            '''
+          }  
+        }
+      }
       stage('Build Docker Image') {
         steps {
           container('kaniko') {
