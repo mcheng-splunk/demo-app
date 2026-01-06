@@ -8,6 +8,13 @@ spec:
   securityContext:
     fsGroup: 1000   # gives write access to shared volumes
   containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+      args: ["$(JENKINS_SECRET)", "$(JENKINS_NAME)"]
+      volumeMounts:
+        - name: workspace
+          mountPath: /home/jenkins/agent/workspace
+      tty: true
     - name: maven
       image: maven:3.9.9-eclipse-temurin-17
       command:
