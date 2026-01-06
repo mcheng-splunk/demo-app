@@ -37,7 +37,6 @@ pipeline {
           container('kubectl') {
              sh '''
                echo "Current namespace:"
-               kubectl config view --minify --output 'jsonpath={..namespace}'
 
                echo "Test deployment apply..."
                kubectl apply -f k8s/deployment.yaml
