@@ -6,11 +6,12 @@ pipeline {
     }
     environment {
         DOCKER_HUB_REPO = 'melcheng/demo-app'
+        GITHUB_REPO = 'mcheng-splunk'
     }
     stages {
       stage('Checkout') {
         steps {
-          git branch: 'main', url: 'https://github.com/youruser/demo-app.git'
+          git branch: 'main', url: 'https://github.com/${GITHUB_REPO}/demo-app.git'
         }
       }
       stage('Build') {
