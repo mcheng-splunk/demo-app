@@ -28,4 +28,6 @@ spec:
     - name: docker-config
       secret:
         secretName: docker-config  # This is your Docker registry credentials secret
-
+        items:
+          - key: .dockerconfigjson
+            path: config.json
