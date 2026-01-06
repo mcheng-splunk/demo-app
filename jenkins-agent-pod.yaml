@@ -37,6 +37,7 @@ spec:
           mountPath: /home/jenkins/agent/workspace
     - name: kubectl
       image: bitnami/kubectl:latest
+      command: ["sleep", "3600"]
       tty: true
       volumeMounts:
         - name: kubeconfig
