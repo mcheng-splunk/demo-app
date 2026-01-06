@@ -36,7 +36,8 @@ pipeline {
         steps {
           container('kubectl') {
              sh '''
-               echo "Current namespace:"
+               echo "Retreive lastest image tag:"
+               sed -i "s|image: melcheng/demo-app:.*|image: ${DOCKER_HUB_REPO}:${BUILD_NUMBER}|g" k8s/deployment.yaml
 
                echo "Test deployment apply..."
                kubectl apply -f k8s/deployment.yaml
