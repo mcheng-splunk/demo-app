@@ -20,19 +20,12 @@ pipeline {
           }
         }
       }
-      stage('SonarQube Scan') {
-        steps {
-          container('maven') {
-	    sh '''
-                mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar \
-                    -Dsonar.projectKey=demo-app \
-                    -Dsonar.projectName='demo-app' \
-                    -Dsonar.host.url=http://18.142.54.82:30850 \
-                    -Dsonar.token=sqp_37a8172c364b4d30835af23bbf64237845b46bd4
-            '''
-          }
+      stage('SonarQube'){
+        withSonarQubeEnv('My SonarQube Server', envOnly: true) {
+        // This expands the evironment variables SONAR_CONFIG_NAME, SONAR_HOST_URL, SONAR_AUTH_TOKEN that can be used by any script.
+        println ${env.SONAR_HOST_URL} 
         }
-      }	
+      }
       stage('Build Docker Image') {
         steps {
           container('kaniko') {
