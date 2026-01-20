@@ -25,7 +25,7 @@ pipeline {
           container('maven') {
             withSonarQubeEnv('sonarqube') {
               sh '''
-		mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.3.1.2184:sonar \
+		mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar \
     		-Dsonar.projectKey=demo-app \
     		-Dsonar.projectName=demo-app \
     		-Dsonar.host.url=$SONAR_HOST_URL
