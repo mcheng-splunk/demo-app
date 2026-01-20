@@ -24,12 +24,7 @@ pipeline {
         steps {
           container('maven') {
             withSonarQubeEnv('sonarqube') {
-              sh '''
-		mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar \
-    		-Dsonar.projectKey=demo-app \
-    		-Dsonar.projectName=demo-app \
-    		-Dsonar.host.url=$SONAR_HOST_URL
-              '''
+		sh 'mvn clean package sonar:sonar'
             }
           }
         }
@@ -37,7 +32,12 @@ pipeline {
       stage('Quality Gate') {
         steps {
           timeout(time: 5, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true
+	    script {
+              def qg = waitForQualityGate()
+              if (qg.status != 'OK') {
+                  error "Pipeline aborted due to quality gate failure: ${qg.status}"
+              }
+	    }
           }
         }
       }
