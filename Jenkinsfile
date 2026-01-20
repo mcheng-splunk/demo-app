@@ -20,6 +20,27 @@ pipeline {
           }
         }
       }
+      stage('SonarQube Scan') {
+        steps {
+          container('maven') {
+            withSonarQubeEnv('sonarqube') {
+              sh '''
+                mvn sonar:sonar \
+                  -Dsonar.projectKey=demo-app \
+                  -Dsonar.projectName=demo-app \
+                  -Dsonar.host.url=$SONAR_HOST_URL
+              '''
+            }
+          }
+        }
+      }	
+      stage('Quality Gate') {
+        steps {
+          timeout(time: 5, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+          }
+        }
+      }
       stage('Build Docker Image') {
         steps {
           container('kaniko') {
