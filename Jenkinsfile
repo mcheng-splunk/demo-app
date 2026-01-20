@@ -25,10 +25,10 @@ pipeline {
           container('maven') {
             withSonarQubeEnv('sonarqube') {
               sh '''
-                mvn sonar:sonar \
-                  -Dsonar.projectKey=demo-app \
-                  -Dsonar.projectName=demo-app \
-                  -Dsonar.host.url=$SONAR_HOST_URL
+		mvn org.sonarsource.scanner.maven:sonar-maven-plugin:4.3.1.2184:sonar \
+    		-Dsonar.projectKey=demo-app \
+    		-Dsonar.projectName=demo-app \
+    		-Dsonar.host.url=$SONAR_HOST_URL
               '''
             }
           }
