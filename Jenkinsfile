@@ -26,6 +26,15 @@ pipeline {
             withSonarQubeEnv(installationName: 'SonarQube', envOnly: true) {
             // This expands the evironment variables SONAR_CONFIG_NAME, SONAR_HOST_URL, SONAR_AUTH_TOKEN that can be used by any script.
               echo "SONAR_HOST_URL: ${env.SONAR_HOST_URL}"
+	      
+	      // Run the SonarQube analysis
+              sh '''
+                mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356:sonar \
+                        -Dsonar.projectKey=demo-app \
+                        -Dsonar.projectName='demo-app' \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.token=$SONAR_AUTH_TOKEN
+              '''
             }
           }
         }
