@@ -22,9 +22,11 @@ pipeline {
       }
       stage('SonarQube'){
         steps {
-          withSonarQubeEnv('My SonarQube Server', envOnly: true) {
-          // This expands the evironment variables SONAR_CONFIG_NAME, SONAR_HOST_URL, SONAR_AUTH_TOKEN that can be used by any script.
-            echo "SONAR_HOST_URL: ${env.SONAR_HOST_URL}"
+	  container('maven') {
+            withSonarQubeEnv(installationName: 'My SonarQube Server', envOnly: true) {
+            // This expands the evironment variables SONAR_CONFIG_NAME, SONAR_HOST_URL, SONAR_AUTH_TOKEN that can be used by any script.
+              echo "SONAR_HOST_URL: ${env.SONAR_HOST_URL}"
+            }
           }
         }
       }
