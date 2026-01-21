@@ -70,7 +70,9 @@ pipeline {
     }
     post {
       always {
-        withCredentials([string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN')]) {
+        withCredentials([
+	  string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN'),
+	  string(credentialsId: 'splunk-hec-url', variable: 'SPLUNK_HEC_URL')]) {
             script {
                 // compute job duration in seconds
                 def duration = (currentBuild.duration ?: 0) / 1000.0
@@ -95,7 +97,7 @@ pipeline {
 
                 // Use shell variable for the file path to avoid interpolation warning
 		sh """
-  		  curl -k -s \$SPLUNK_HEC \
+  		  curl -k -s \$SPLUNK_HEC_URL \
     		  -H "Authorization: Splunk \$HEC_TOKEN" \
     		  -H "Content-Type: application/json" \
     		  -d @${payloadFile} || true
