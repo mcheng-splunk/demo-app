@@ -6,6 +6,7 @@ pipeline {
     }
     environment {
         DOCKER_HUB_REPO = 'melcheng/demo-app'
+        BUILD_START = "${System.currentTimeMillis()}"
     }
     stages {
       stage('Checkout') {
@@ -75,7 +76,10 @@ pipeline {
 	  string(credentialsId: 'splunk-hec-url', variable: 'SPLUNK_HEC_URL')]) {
             script {
                 // compute job duration in seconds
-                def duration = (currentBuild.duration ?: 0) / 1000.0
+                // def duration = (currentBuild.duration ?: 0) / 1000.0
+		
+		def durationMs = System.currentTimeMillis().toLong() - env.BUILD_START.toLong()
+		def duration = durationMs / 1000.0
 
                 // prepare JSON payload
                 def payloadFile = "/tmp/splunk_payload_${JOB_NAME}_${BUILD_NUMBER}.json"
