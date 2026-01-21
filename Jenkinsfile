@@ -71,15 +71,20 @@ pipeline {
             script {
                 def trivyReportFile = "${WORKSPACE}/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json"
                 def htmlReport = "${WORKSPACE}/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.html"
+                def templateFile = "${WORKSPACE}/html.tpl"
+
                 echo "Scanning Docker image ${DOCKER_HUB_REPO}:${BUILD_NUMBER}..."
                 sh """
                     # Run scan once (JSON)
                     trivy image --format json --output ${trivyReportFile} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
 
+                    # Download official HTML template
+                    curl -s https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o ${templateFile}
+
                     # Convert JSON to HTML (no rescan)
                     trivy convert \
                       --format template \
-                      --template "@contrib/html.tpl" \
+                      --template "@${templateFile}"  \
                       --output ${htmlReport} \
                       ${trivyReportFile}
                 """
