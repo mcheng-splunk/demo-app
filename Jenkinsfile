@@ -70,14 +70,24 @@ pipeline {
         container('trivy') {
             script {
                 def trivyReportFile = "${WORKSPACE}/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json"
+                def htmlReport = "${WORKSPACE}/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.html"
                 echo "Scanning Docker image ${DOCKER_HUB_REPO}:${BUILD_NUMBER}..."
                 sh """
+                    # Run scan once (JSON)
                     trivy image --format json --output ${trivyReportFile} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
-                """
-                echo "Trivy report saved at: ${trivyReportFile}"
 
-                //  Archive for download from Jenkins UI
-                archiveArtifacts artifacts: "trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json", fingerprint: true
+                    # Convert JSON to HTML (no rescan)
+                    trivy convert \
+                      --format template \
+                      --template "@contrib/html.tpl" \
+                      --output ${htmlReport} \
+                      ${trivyReportFile}
+                """
+
+                echo "HTML report generated: ${htmlReport}"
+
+                // Archive only HTML for Jenkins UI download
+                archiveArtifacts artifacts: "trivy_report_${JOB_NAME}_${BUILD_NUMBER}.html", fingerprint: true
             }
         } // end of trivy container
 
