@@ -78,7 +78,7 @@ pipeline {
                 // compute job duration in seconds
                 // def duration = (currentBuild.duration ?: 0) / 1000.0
 		
-		def durationMs = currentBuild.rawBuild.getEndTimeInMillis() - currentBuild.rawBuild.getStartTimeInMillis()
+		def durationMs = System.currentTimeMillis() - currentBuild.startTimeInMillis
 		def duration = durationMs / 1000.0
 
                 // prepare JSON payload
