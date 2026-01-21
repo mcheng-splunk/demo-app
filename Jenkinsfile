@@ -76,9 +76,8 @@ pipeline {
                  echo "Trivy report saved at: ${trivyReportFile}"
 
                 // Combine metadata with Trivy report
-                def trivyJson = readFile(trivyReportFile).trim()
-                def combinedFile = "${WORKSPACE}/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
-                def metadata = """{
+        
+                def combinedMap = """{
                   "index": "jenkins_statistics",
                   "sourcetype": "json:jenkins",
                   "host": "jenkins",
@@ -89,15 +88,12 @@ pipeline {
                       "node_name": "${NODE_NAME}",
                       "build_number": ${BUILD_NUMBER},
                       "build_url": "${BUILD_URL}",
-                      "trivy_report": ${trivyJson}
+                      trivy_report: readJSON(file: trivyReportFile)  // safely parse JSON
                   }
                 }"""
-                writeFile file: combinedFile, text: combinedJson
-
-                sh """
-                    jq -n --argjson metadata '${metadata}' --slurpfile report ${trivyReportFile} \
-                    '{metadata: \$metadata, scan: \$report[0]}' > ${combinedFile}
-                """
+                
+                def combinedFile = "${WORKSPACE}/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
+                writeJSON file: combinedFile, json: combinedMap, pretty: 4
 
                 // Send to Splunk
                 withCredentials([
