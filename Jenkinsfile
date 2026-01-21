@@ -78,9 +78,6 @@ pipeline {
                     # Run scan once (JSON)
                     trivy image --format json --output ${trivyReportFile} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
 
-                    # Download official HTML template
-                    curl -s https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o ${templateFile}
-
                     # Convert JSON to HTML (no rescan)
                     trivy convert \
                       --format template \
