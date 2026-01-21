@@ -68,5 +68,47 @@ pipeline {
         }
       }
     }
+    post {
+      always {
+        withCredentials([string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN')]) {
+            script {
+                // compute job duration in seconds
+                def duration = (currentBuild.duration ?: 0) / 1000.0
+
+                // prepare JSON payload
+                def payloadFile = "/tmp/splunk_payload_${JOB_NAME}_${BUILD_NUMBER}.json"
+                def jsonPayload = """{
+                  "index": "jenkins_statistics",
+                  "sourcetype": "json:jenkins",
+                  "host": "jenkins",
+                  "source": "jenkins",
+                  "event": {
+                      "event_tag": "job_monitor",
+                      "job_name": "${JOB_NAME}",
+                      "node_name": "${NODE_NAME}",
+                      "job_duration": ${duration},
+                      "build_number": ${BUILD_NUMBER},
+                      "build_url": "${BUILD_URL}"
+                  }
+                }"""
+                writeFile file: payloadFile, text: jsonPayload
+
+                // Use shell variable for the file path to avoid interpolation warning
+		sh """
+  		  curl -k -s \$SPLUNK_HEC \
+    		  -H "Authorization: Splunk \$HEC_TOKEN" \
+    		  -H "Content-Type: application/json" \
+    		  -d @${payloadFile} || true
+		"""
+                //sh '''
+                //    payload_file=''' + payloadFile + '''
+                //    curl -k -s $SPLUNK_HEC \
+                //        -H "Authorization: Splunk $HEC_TOKEN" \
+                //        -H "Content-Type: application/json" \
+                //        -d @$payload_file || true
+                '''
+            }
+        }
+    }
   }  
 
