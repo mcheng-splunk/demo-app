@@ -49,6 +49,14 @@ spec:
           mountPath: /root/.kube
         - name: workspace
           mountPath: /home/jenkins/agent/workspace
+    - name: trivy
+      image: aquasec/trivy:latest
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - name: workspace
+          mountPath: /home/jenkins/agent/workspace
   volumes:
     - name: maven-cache
       emptyDir: {}

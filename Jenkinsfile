@@ -64,6 +64,59 @@ pipeline {
           }
         }
       }
+      stage('Trivy Scan') {
+        steps {
+          container('trivy') {
+            script {
+                // Scan the Docker image and save the report as JSON
+                def trivyReportFile = "/tmp/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json"
+                sh """
+                    trivy image --format json --output ${trivyReportFile} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
+                """
+
+                // Combine metadata with Trivy report
+                def trivyJson = readFile(trivyReportFile).trim()
+                def combinedFile = "/tmp/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
+                def metadata = """{
+                  "index": "jenkins_statistics",
+                  "sourcetype": "json:jenkins",
+                  "host": "jenkins",
+                  "source": "jenkins",
+                  "event": {
+                      "event_tag": "job_monitor",
+                      "job_name": "${JOB_NAME}",
+                      "node_name": "${NODE_NAME}",
+                      "job_duration": ${duration},
+                      "build_number": ${BUILD_NUMBER},
+                      "build_url": "${BUILD_URL}",
+                      "trivy_report": ${trivyJson}
+                  }
+                }"""
+                writeFile file: combinedFile, text: combinedJson
+
+                sh """
+                    jq -n --argjson metadata '${metadata}' --slurpfile report ${trivyReportFile} \
+                    '{metadata: \$metadata, scan: \$report[0]}' > ${combinedFile}
+                """
+
+                // Send to Splunk
+                withCredentials([
+                    string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN'),
+                    string(credentialsId: 'splunk-hec-url', variable: 'SPLUNK_HEC_URL')
+                ]) {
+                    sh """
+                        curl -k -s \$SPLUNK_HEC_URL \
+                            -H "Authorization: Splunk \$HEC_TOKEN" \
+                            -H "Content-Type: application/json" \
+                            -d @${combinedFile} || true
+                    """
+                }
+            }
+          } // end of container
+        }
+      } // end of trivy stage
+
+
       stage('Deploy to Kubernetes') {
         steps {
           container('kubectl') {
