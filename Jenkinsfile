@@ -79,7 +79,7 @@ pipeline {
         } // end of trivy container
 
         // Step 2: Combine metadata and send to Splunk in a curl-capable container
-        container('kaniko') {
+        container('maven') {
             script {
                 def trivyReportFile = "${WORKSPACE}/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json"
                 def combinedFile = "${WORKSPACE}/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
