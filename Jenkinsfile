@@ -84,10 +84,9 @@ pipeline {
                   "host": "jenkins",
                   "source": "jenkins",
                   "event": {
-                      "event_tag": "job_monitor",
+                      "event_tag": "job_scan",
                       "job_name": "${JOB_NAME}",
                       "node_name": "${NODE_NAME}",
-                      "job_duration": ${duration},
                       "build_number": ${BUILD_NUMBER},
                       "build_url": "${BUILD_URL}",
                       "trivy_report": ${trivyJson}
@@ -135,13 +134,13 @@ pipeline {
     post {
       always {
         withCredentials([
-	  string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN'),
-	  string(credentialsId: 'splunk-hec-url', variable: 'SPLUNK_HEC_URL')]) {
+	        string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN'),
+	        string(credentialsId: 'splunk-hec-url', variable: 'SPLUNK_HEC_URL')]) {
             script {
                 // compute job duration in seconds
 		
-		def durationMs = System.currentTimeMillis() - currentBuild.startTimeInMillis
-		def duration = durationMs / 1000.0
+		            def durationMs = System.currentTimeMillis() - currentBuild.startTimeInMillis
+		            def duration = durationMs / 1000.0
 
                 // prepare JSON payload
                 def payloadFile = "/tmp/splunk_payload_${JOB_NAME}_${BUILD_NUMBER}.json"
@@ -162,15 +161,15 @@ pipeline {
                 writeFile file: payloadFile, text: jsonPayload
 
                 // Use shell variable for the file path to avoid interpolation warning
-		sh """
-  		  curl -k -s \$SPLUNK_HEC_URL \
-    		  -H "Authorization: Splunk \$HEC_TOKEN" \
-    		  -H "Content-Type: application/json" \
-    		  -d @${payloadFile} || true
-		"""
+                sh """
+                  curl -k -s \$SPLUNK_HEC_URL \
+                    -H "Authorization: Splunk \$HEC_TOKEN" \
+                    -H "Content-Type: application/json" \
+                    -d @${payloadFile} || true
+                """
             }
-	  }
-        }
-    }
+	        }
+      }
+    } // end of post 
   }  
 
