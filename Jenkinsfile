@@ -94,12 +94,12 @@ pipeline {
                 writeFile file: payloadFile, text: jsonPayload
 
                 // Use shell variable for the file path to avoid interpolation warning
-		sh """
+		sh '''
   		  curl -k -s \$SPLUNK_HEC \
     		  -H "Authorization: Splunk \$HEC_TOKEN" \
     		  -H "Content-Type: application/json" \
     		  -d @${payloadFile} || true
-		"""
+		'''
                 //sh '''
                 //    payload_file=''' + payloadFile + '''
                 //    curl -k -s $SPLUNK_HEC \
