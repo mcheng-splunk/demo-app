@@ -107,6 +107,13 @@ pipeline {
                 def combinedJson = groovy.json.JsonOutput.toJson(combinedMap)
                 writeFile file: combinedFile, text: combinedJson
 
+
+                echo "==== Trivy payload preview (raw) ===="
+                sh "cat ${combinedFile}"
+
+                echo "==== Trivy payload preview (pretty) ===="
+                sh "python3 -m json.tool ${combinedFile} || cat ${combinedFile}"
+
                 echo "Sending Trivy report to Splunk..."
                 withCredentials([
                     string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN'),
@@ -120,7 +127,7 @@ pipeline {
                     """
                 }
             }
-        } // end of kaniko container
+        } // end of maven container
       }
     }
 
