@@ -84,7 +84,7 @@ pipeline {
                     # Convert JSON to HTML (no rescan)
                     trivy convert \
                       --format template \
-                      --template "@${templateFile}"  \
+                      --template "@${WORKSPACE}/trivy/html.tpl"  \
                       --output ${htmlReport} \
                       ${trivyReportFile}
                 """
