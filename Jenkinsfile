@@ -106,7 +106,7 @@ pipeline {
                 //        -H "Authorization: Splunk $HEC_TOKEN" \
                 //        -H "Content-Type: application/json" \
                 //        -d @$payload_file || true
-                '''
+                //'''
             }
         }
     }
