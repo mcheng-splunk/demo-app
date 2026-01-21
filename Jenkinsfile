@@ -64,21 +64,30 @@ pipeline {
           }
         }
       }
-      stage('Trivy Scan') {
-        steps {
-          container('trivy') {
+    stage('Trivy Scan') {
+      steps {
+        // Step 1: Run Trivy scan in trivy container
+        container('trivy') {
             script {
-                // Scan the Docker image and save the report as JSON
                 def trivyReportFile = "${WORKSPACE}/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json"
+                echo "Scanning Docker image ${DOCKER_HUB_REPO}:${BUILD_NUMBER}..."
                 sh """
                     trivy image --format json --output ${trivyReportFile} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
                 """
-                 echo "Trivy report saved at: ${trivyReportFile}"
+                echo "Trivy report saved at: ${trivyReportFile}"
+            }
+        } // end of trivy container
+
+        // Step 2: Combine metadata and send to Splunk in a curl-capable container
+        container('kaniko') {
+            script {
+                def trivyReportFile = "${WORKSPACE}/trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json"
+                def combinedFile = "${WORKSPACE}/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
 
                 // Read Trivy JSON
                 def trivyData = readJSON file: trivyReportFile
 
-                // Combine metadata and Trivy report into a Groovy map
+                // Combine metadata with Trivy report
                 def combinedMap = [
                     index: "jenkins_statistics",
                     sourcetype: "json:jenkins",
@@ -94,12 +103,11 @@ pipeline {
                     ]
                 ]
 
-                // Convert map to JSON text
+                // Write combined JSON
                 def combinedJson = groovy.json.JsonOutput.toJson(combinedMap)
-                def combinedFile = "${WORKSPACE}/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
                 writeFile file: combinedFile, text: combinedJson
-                
-                // Send to Splunk
+
+                echo "Sending Trivy report to Splunk..."
                 withCredentials([
                     string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN'),
                     string(credentialsId: 'splunk-hec-url', variable: 'SPLUNK_HEC_URL')
@@ -112,9 +120,9 @@ pipeline {
                     """
                 }
             }
-          } // end of container
-        }
-      } // end of trivy stage
+        } // end of kaniko container
+      }
+    }
 
 
       stage('Deploy to Kubernetes') {
