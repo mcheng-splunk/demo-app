@@ -75,6 +75,9 @@ pipeline {
                     trivy image --format json --output ${trivyReportFile} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
                 """
                 echo "Trivy report saved at: ${trivyReportFile}"
+
+                //  Archive for download from Jenkins UI
+                archiveArtifacts artifacts: "trivy_report_${JOB_NAME}_${BUILD_NUMBER}.json", fingerprint: true
             }
         } // end of trivy container
 
