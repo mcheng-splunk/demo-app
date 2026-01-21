@@ -75,26 +75,30 @@ pipeline {
                 """
                  echo "Trivy report saved at: ${trivyReportFile}"
 
-                // Combine metadata with Trivy report
-        
-                def combinedMap = """{
-                  "index": "jenkins_statistics",
-                  "sourcetype": "json:jenkins",
-                  "host": "jenkins",
-                  "source": "jenkins",
-                  "event": {
-                      "event_tag": "job_scan",
-                      "job_name": "${JOB_NAME}",
-                      "node_name": "${NODE_NAME}",
-                      "build_number": ${BUILD_NUMBER},
-                      "build_url": "${BUILD_URL}",
-                      trivy_report: readJSON(file: trivyReportFile)  // safely parse JSON
-                  }
-                }"""
-                
-                def combinedFile = "${WORKSPACE}/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
-                writeJSON file: combinedFile, json: combinedMap, pretty: 4
+                // Read Trivy JSON
+                def trivyData = readJSON file: trivyReportFile
 
+                // Combine metadata and Trivy report into a Groovy map
+                def combinedMap = [
+                    index: "jenkins_statistics",
+                    sourcetype: "json:jenkins",
+                    host: "jenkins",
+                    source: "jenkins",
+                    event: [
+                        event_tag: "job_scan",
+                        job_name: "${JOB_NAME}",
+                        node_name: "${NODE_NAME}",
+                        build_number: BUILD_NUMBER,
+                        build_url: "${BUILD_URL}",
+                        trivy_report: trivyData
+                    ]
+                ]
+
+                // Convert map to JSON text
+                def combinedJson = groovy.json.JsonOutput.toJson(combinedMap)
+                def combinedFile = "${WORKSPACE}/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
+                writeFile file: combinedFile, text: combinedJson
+                
                 // Send to Splunk
                 withCredentials([
                     string(credentialsId: 'splunk-hec-token', variable: 'HEC_TOKEN'),
