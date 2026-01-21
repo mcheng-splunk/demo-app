@@ -73,7 +73,8 @@ pipeline {
                 sh """
                     trivy image --format json --output ${trivyReportFile} ${DOCKER_HUB_REPO}:${BUILD_NUMBER}
                 """
-
+                 echo "Trivy report saved at: ${trivyReportFile}"
+                 
                 // Combine metadata with Trivy report
                 def trivyJson = readFile(trivyReportFile).trim()
                 def combinedFile = "/tmp/trivy_combined_${JOB_NAME}_${BUILD_NUMBER}.json"
