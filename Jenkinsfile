@@ -85,7 +85,6 @@ pipeline {
 	  string(credentialsId: 'splunk-hec-url', variable: 'SPLUNK_HEC_URL')]) {
             script {
                 // compute job duration in seconds
-                // def duration = (currentBuild.duration ?: 0) / 1000.0
 		
 		def durationMs = System.currentTimeMillis() - currentBuild.startTimeInMillis
 		def duration = durationMs / 1000.0
@@ -115,13 +114,6 @@ pipeline {
     		  -H "Content-Type: application/json" \
     		  -d @${payloadFile} || true
 		"""
-                //sh '''
-                //    payload_file=''' + payloadFile + '''
-                //    curl -k -s $SPLUNK_HEC \
-                //        -H "Authorization: Splunk $HEC_TOKEN" \
-                //        -H "Content-Type: application/json" \
-                //        -d @$payload_file || true
-                //'''
             }
 	  }
         }
