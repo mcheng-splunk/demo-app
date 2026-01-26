@@ -17,7 +17,7 @@ pipeline {
     stage('Snyk Dependency Scan') {
       steps {
         container('snyk') {
-          withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+          withCredentials([string(credentialsId: 'Snyk-token', variable: 'SNYK_TOKEN')]) {
             sh '''
               snyk auth $SNYK_TOKEN
               snyk test --severity-threshold=high || true
