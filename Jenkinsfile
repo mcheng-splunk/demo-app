@@ -22,8 +22,8 @@ pipeline {
                 snyk auth $SNYK_TOKEN
                 snyk test --severity-threshold=high || true  --json > "${WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json"
 	              snyk monitor --all-projects || true
-                archiveArtifacts artifacts: "${WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json", fingerprint: true
               '''
+                archiveArtifacts artifacts: "${WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json", fingerprint: true
             }
           }
         }
