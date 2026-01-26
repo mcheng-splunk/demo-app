@@ -20,15 +20,15 @@ pipeline {
             withCredentials([string(credentialsId: 'Snyk-token', variable: 'SNYK_TOKEN')]) {
               script{
                 // Define report paths on the mounted workspace
-                    def reportFile = "${WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json"
-                    def htmlReport = "${WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.html"
+                def reportFile = "${env.WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json"
+                def htmlReport = "${env.WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.html"
 
                 sh '''
                   echo "Authenticating Snyk..."
                   snyk auth $SNYK_TOKEN
                   
                   echo "Running Snyk test..."
-                  snyk test --severity-threshold=high --json > ${reportFile} || true 
+                  snyk test --severity-threshold=high --json > "${reportFile}" || true 
 
                   echo "Sending Snyk monitor..."
                   snyk monitor --all-projects || true
@@ -36,10 +36,11 @@ pipeline {
                 '''
 
                 sh '''
-                        echo "<html><body><pre>" > ${htmlReport}
-                        cat ${reportFile} >> ${htmlReport}
-                        echo "</pre></body></html>" >> ${htmlReport}
-                    '''
+                  echo "<html><body><pre>" > ${htmlReport}
+                  cat ${reportFile} >> ${htmlReport}
+                  echo "</pre></body></html>" >> ${htmlReport}
+                  ls -l
+                '''
                 // Archive reports so Jenkins can show/download them
                 archiveArtifacts artifacts: reportFile, fingerprint: true
                 archiveArtifacts artifacts: htmlReport, fingerprint: true
