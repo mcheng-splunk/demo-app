@@ -20,9 +20,9 @@ pipeline {
             withCredentials([string(credentialsId: 'Snyk-token', variable: 'SNYK_TOKEN')]) {
               sh '''
                 snyk auth $SNYK_TOKEN
-                snyk test --severity-threshold=high || true  --json > "snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json"
-	        snyk monitor --all-projects || true
-                archiveArtifacts artifacts: "snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json", fingerprint: true
+                snyk test --severity-threshold=high || true  --json > "${WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json"
+	              snyk monitor --all-projects || true
+                archiveArtifacts artifacts: "${WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json", fingerprint: true
               '''
             }
           }
