@@ -204,6 +204,9 @@ pipeline {
 		            def durationMs = System.currentTimeMillis() - currentBuild.startTimeInMillis
 		            def duration = durationMs / 1000.0
 
+                // get build status (SUCCESS, FAILURE, etc.)
+                def buildStatus = currentBuild.currentResult
+
                 // prepare JSON payload
                 def payloadFile = "/tmp/splunk_payload_${JOB_NAME}_${BUILD_NUMBER}.json"
                 def jsonPayload = """{
@@ -217,7 +220,8 @@ pipeline {
                       "node_name": "${NODE_NAME}",
                       "job_duration": ${duration},
                       "build_number": ${BUILD_NUMBER},
-                      "build_url": "${BUILD_URL}"
+                      "build_url": "${BUILD_URL}",
+                      "build_status": "${buildStatus}"
                   }
                 }"""
                 writeFile file: payloadFile, text: jsonPayload
