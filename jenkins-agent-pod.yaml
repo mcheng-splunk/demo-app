@@ -61,6 +61,9 @@ spec:
       image: snyk/snyk:linux
       command: ["cat"]
       tty: true
+      volumeMounts:
+        - name: workspace
+          mountPath: /home/jenkins/agent/workspace
   volumes:
     - name: maven-cache
       emptyDir: {}

@@ -14,18 +14,18 @@ pipeline {
           git branch: 'main', url: 'https://github.com/mcheng-splunk/demo-app.git'
         }
       }
-    stage('Snyk Dependency Scan') {
-      steps {
-        container('snyk') {
-          withCredentials([string(credentialsId: 'Snyk-token', variable: 'SNYK_TOKEN')]) {
-            sh '''
-              snyk auth $SNYK_TOKEN
-              snyk test --severity-threshold=high || true
-            '''
+      stage('Snyk Dependency Scan') {
+        steps {
+          container('snyk') {
+            withCredentials([string(credentialsId: 'Snyk-token', variable: 'SNYK_TOKEN')]) {
+              sh '''
+                snyk auth $SNYK_TOKEN
+                snyk test --severity-threshold=high || true
+              '''
+            }
           }
         }
-      }
-    } // end of Synk Dependency Scan
+      } // end of Synk Dependency Scan
       stage('Build') {
         steps {
           container('maven') {
