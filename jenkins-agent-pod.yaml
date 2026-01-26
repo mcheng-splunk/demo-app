@@ -58,7 +58,7 @@ spec:
         - name: workspace
           mountPath: /home/jenkins/agent/workspace
     - name: snyk
-      image: snyk/snyk:docker
+      image: snyk/snyk:linux-rc
       command: ["cat"]
       tty: true
   volumes:
