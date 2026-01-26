@@ -23,7 +23,7 @@ pipeline {
                 def reportFile = "${env.WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.json"
                 def htmlReport = "${env.WORKSPACE}/snyk_report_${JOB_NAME}_${BUILD_NUMBER}.html"
 
-                sh '''
+                sh """
                   echo "Authenticating Snyk..."
                   snyk auth $SNYK_TOKEN
                   
@@ -33,14 +33,13 @@ pipeline {
                   echo "Sending Snyk monitor..."
                   snyk monitor --all-projects || true
 
-                '''
+                """
 
-                sh '''
+                sh """
                   echo "<html><body><pre>" > ${htmlReport}
                   cat ${reportFile} >> ${htmlReport}
                   echo "</pre></body></html>" >> ${htmlReport}
-                  ls -l results.html
-                '''
+                """
                 // Archive reports so Jenkins can show/download them
                 // archiveArtifacts artifacts: reportFile, fingerprint: true
                 archiveArtifacts artifacts: htmlReport, fingerprint: true
