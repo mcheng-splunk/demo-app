@@ -28,7 +28,7 @@ pipeline {
                   snyk auth $SNYK_TOKEN
                   
                   echo "Running Snyk test..."
-                  snyk test --json | snyk-to-html -o results.html
+                  snyk test --json > "${reportFile}"
                   
                   echo "Sending Snyk monitor..."
                   snyk monitor --all-projects || true
@@ -37,7 +37,7 @@ pipeline {
 
                 sh '''
                   echo "<html><body><pre>" > ${htmlReport}
-                  cat results.html >> ${htmlReport}
+                  cat ${reportFile} >> ${htmlReport}
                   echo "</pre></body></html>" >> ${htmlReport}
                   ls -l results.html
                 '''
