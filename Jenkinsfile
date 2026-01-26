@@ -28,8 +28,8 @@ pipeline {
                   snyk auth $SNYK_TOKEN
                   
                   echo "Running Snyk test..."
-                  snyk test --severity-threshold=high --json > "${reportFile}" || true 
-
+                  snyk test --json | snyk-to-html -o results.html
+                  
                   echo "Sending Snyk monitor..."
                   snyk monitor --all-projects || true
 
@@ -37,12 +37,12 @@ pipeline {
 
                 sh '''
                   echo "<html><body><pre>" > ${htmlReport}
-                  cat ${reportFile} >> ${htmlReport}
+                  cat results.html >> ${htmlReport}
                   echo "</pre></body></html>" >> ${htmlReport}
-                  ls -l
+                  ls -l results.html
                 '''
                 // Archive reports so Jenkins can show/download them
-                archiveArtifacts artifacts: reportFile, fingerprint: true
+                // archiveArtifacts artifacts: reportFile, fingerprint: true
                 archiveArtifacts artifacts: htmlReport, fingerprint: true
               }
             }
